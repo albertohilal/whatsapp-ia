@@ -1,4 +1,5 @@
 const OpenAI = require('openai');
+const contextoSitio = require('./contextoSitio');
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -6,13 +7,14 @@ const openai = new OpenAI({
 
 async function generarRespuesta(mensajeUsuario) {
   const completion = await openai.chat.completions.create({
-    model: "gpt-4o",
-    messages: [{ role: "user", content: mensajeUsuario }]
+    model: 'gpt-4o',
+    messages: [
+      { role: 'system', content: contextoSitio },
+      { role: 'user', content: mensajeUsuario }
+    ],
   });
 
   return completion.choices[0].message.content;
 }
 
-module.exports = {
-  generarRespuesta
-};
+module.exports = { generarRespuesta };
