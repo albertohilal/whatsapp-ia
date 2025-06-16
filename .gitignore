@@ -5,3 +5,4 @@ tokens/
 *.ldb
 *.pma
 
+.env
