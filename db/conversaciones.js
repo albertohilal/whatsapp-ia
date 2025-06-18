@@ -1,33 +1,37 @@
-const pool = require('./connection');
+require('dotenv').config();
+const mysql = require('mysql2/promise');
 
-/**
- * Guarda un mensaje de usuario o de IA en la tabla ll_ia_conversaciones.
- * @param {string} telefono - Número del remitente (formato WhatsApp)
- * @param {'user' | 'assistant'} rol - Rol del emisor
- * @param {string} mensaje - Contenido del mensaje
- */
-async function guardarMensaje(telefono, rol, mensaje) {
-  await pool.execute(
-    'INSERT INTO ll_ia_conversaciones (telefono, rol, mensaje) VALUES (?, ?, ?)',
-    [telefono, rol, mensaje]
-  );
-}
-
-/**
- * Obtiene el historial de mensajes recientes para un número dado.
- * @param {string} telefono - Número de teléfono
- * @param {number} limite - Cantidad de mensajes (pares user+bot) a recuperar
- * @returns {Array} Lista de mensajes ordenados cronológicamente
- */
-async function obtenerHistorial(telefono, limite = 6) {
-  const [rows] = await pool.execute(
-    'SELECT rol, mensaje FROM ll_ia_conversaciones WHERE telefono = ? ORDER BY created_at DESC LIMIT ?',
-    [telefono, limite]
-  );
-  return rows.reverse(); // De más antiguo a más nuevo
-}
-
-module.exports = {
-  guardarMensaje,
-  obtenerHistorial
+const dbConfig = {
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_DATABASE || 'iunaorg_dyd',
+  port: process.env.DB_PORT || 3306,
 };
+
+async function guardarMensaje(telefono, rol, mensaje) {
+  const connection = await mysql.createConnection(dbConfig);
+  const query = `
+    INSERT INTO ll_ia_conversaciones (telefono, rol, mensaje, created_at)
+    VALUES (?, ?, ?, NOW())
+  `;
+  await connection.execute(query, [telefono, rol, mensaje]);
+  await connection.end();
+}
+
+async function obtenerHistorial(telefono, cantidad = 6) {
+  const connection = await mysql.createConnection(dbConfig);
+  const query = `
+    SELECT rol, mensaje
+    FROM ll_ia_conversaciones
+    WHERE telefono = ?
+    ORDER BY created_at DESC
+    LIMIT ?
+  `;
+  const [rows] = await connection.execute(query, [telefono, cantidad]);
+  await connection.end();
+
+  return rows.reverse();
+}
+
+module.exports = { guardarMensaje, obtenerHistorial };

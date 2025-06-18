@@ -1,33 +1,28 @@
-const OpenAI = require('openai');
 require('dotenv').config();
+const OpenAI = require('openai');
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
 /**
- * Esta función recibe un array de mensajes en formato:
- * [
- *   { role: 'system', content: ... },
- *   { role: 'user', content: ... },
- *   { role: 'assistant', content: ... },
- *   ...
- * ]
- * y devuelve la respuesta generada por el modelo.
+ * Genera una respuesta usando OpenAI (GPT-4o).
+ * @param {Array} mensajes - Lista de mensajes en formato [{ role, content }]
+ * @returns {Promise<string>} - Respuesta generada por la IA
  */
 async function generarRespuesta(mensajes) {
   try {
-    console.log("🧠 Enviando a OpenAI...", mensajes);
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o',
-      messages: mensajes
+      messages: mensajes,
+      temperature: 0.7,
+      max_tokens: 500,
     });
 
-    console.log("✅ Respuesta recibida de OpenAI.");
-    return completion.choices[0].message.content;
+    return completion.choices[0].message.content.trim();
   } catch (error) {
-    console.error("❌ Error al generar respuesta:", error);
-    return "Hubo un problema al procesar tu mensaje. Por favor, intentá nuevamente más tarde.";
+    console.error('❌ Error en generarRespuesta:', error?.response?.data || error.message);
+    return 'Lo siento, ocurrió un error al generar la respuesta.';
   }
 }
 
