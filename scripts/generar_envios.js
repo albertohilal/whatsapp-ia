@@ -1,3 +1,5 @@
+// scripts/generar_envios.js
+
 require('dotenv').config();
 const mysql = require('mysql2/promise');
 
@@ -10,14 +12,17 @@ const dbConfig = {
   port: process.env.DB_PORT
 };
 
-// ID de la campaña que se usará (puede hacerse dinámico más adelante)
+// ID de la campaña a utilizar
 const CAMPANIA_ID = 1;
+
+// Cantidad máxima de registros por ejecución
+const LIMITE_ENVIO = 50;
 
 async function generarEnvios() {
   const connection = await mysql.createConnection(dbConfig);
 
   try {
-    // 1. Obtener la campaña seleccionada
+    // 1. Obtener la campaña
     const [campanias] = await connection.execute(
       'SELECT * FROM ll_campanias_whatsapp WHERE id = ?',
       [CAMPANIA_ID]
@@ -31,22 +36,27 @@ async function generarEnvios() {
     const campania = campanias[0];
     console.log(`✅ Campaña encontrada: ${campania.nombre}`);
 
-    // 2. Obtener todos los lugares con teléfono
+    // 2. Buscar lugares con teléfono válido y que no hayan sido usados en ll_envios_whatsapp
     const [lugares] = await connection.execute(`
       SELECT l.nombre, l.telefono, r.nombre AS rubro
       FROM ll_lugares l
       LEFT JOIN ll_rubros r ON l.rubro_id = r.id
-      WHERE l.telefono IS NOT NULL AND l.telefono != ''
-    `);
+      WHERE l.telefono IS NOT NULL
+        AND LENGTH(l.telefono) = 13
+        AND l.telefono LIKE '54911%'
+        AND l.telefono NOT IN (
+          SELECT telefono FROM ll_envios_whatsapp WHERE campania_id = ?
+        )
+      LIMIT ?
+    `, [CAMPANIA_ID, LIMITE_ENVIO]);
 
     if (lugares.length === 0) {
-      console.log('⚠️ No se encontraron lugares con teléfono válido.');
+      console.log('⚠️ No se encontraron lugares nuevos con teléfono válido.');
       return;
     }
 
     let insertados = 0;
 
-    // 3. Recorrer lugares y generar envíos personalizados
     for (const lugar of lugares) {
       const mensajePersonalizado = campania.mensaje
         .replace(/{{nombre}}/gi, lugar.nombre || '')
@@ -66,7 +76,7 @@ async function generarEnvios() {
       insertados++;
     }
 
-    console.log(`✅ Se generaron ${insertados} registros en ll_envios_whatsapp.`);
+    console.log(`✅ Se generaron ${insertados} registros nuevos en ll_envios_whatsapp.`);
 
   } catch (error) {
     console.error('❌ Error en la generación de envíos:', error.message);
