@@ -1,12 +1,14 @@
 {
   "name": "whatsapp-ia",
   "version": "1.0.0",
-  "description": "Sistema de envío masivo + respuestas automáticas en WhatsApp",
+  "description": "Sistema de envío masivo y respuesta automática en WhatsApp usando Node.js, Express y OpenAI GPT-4o",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "server": "node servidor.js",
-    "envios": "node scripts/generar_envios.js"
+    "envios": "node scripts/generar_envios.js",
+    "bot": "node bot/whatsapp.js",
+    "dev": "concurrently \"npm run server\" \"npm run bot\""
   },
   "author": "Alberto Hilal",
   "license": "MIT",
@@ -18,5 +20,8 @@
     "openai": "^5.3.0",
     "qrcode-terminal": "^0.12.0",
     "whatsapp-web.js": "^1.23.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   }
 }

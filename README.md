@@ -1,10 +1,13 @@
-Perfecto. A continuación te presento el `README.md` **unificado y profesional**, que documenta ambos módulos de tu proyecto `whatsapp-ia`: **respuesta automática inteligente** y **envío masivo por campañas**, incluyendo una **tabla de contenidos** para facilitar la navegación.
+Perfecto. Aquí tenés el contenido **actualizado del `README.md`** con la nueva funcionalidad `npm run dev`, que lanza simultáneamente:
 
-Podés copiar y pegar este texto directamente en tu archivo `README.md`.
+* 🧠 El bot de respuestas automáticas
+* 🌐 El servidor web de campañas
+
+Incluye la tabla de contenidos, scripts, dependencias y base de datos.
 
 ---
 
-### 📄 `README.md` completo
+### 📄 `README.md` actualizado (versión completa)
 
 ````markdown
 # 🤖 whatsapp-ia
@@ -33,43 +36,33 @@ Sistema integral de automatización de WhatsApp:
 
 ## 🧠 Respuesta automática con IA
 
-Este módulo permite responder mensajes entrantes con inteligencia artificial.
-
 - Utiliza `whatsapp-web.js` y `OpenAI GPT-4o`.
-- Si el mensaje coincide con una respuesta predefinida (`respuestas.js`), se responde directamente.
-- Si no, se consulta a OpenAI para generar una respuesta automática.
+- Si el mensaje coincide con una respuesta predefinida (`respuestas.js`), responde directamente.
+- Si no, se consulta a OpenAI para una respuesta automática.
 
-### Archivos clave:
+Archivos clave:
 
 - `bot/whatsapp.js` → inicializa el bot
 - `analizador.js` → decide entre respuesta fija o IA
 - `respuestas.js` → contiene respuestas rápidas
-- `chatgpt.js` → conexión con GPT-4o (OpenAI)
+- `chatgpt.js` → conexión con OpenAI
 
 ---
 
 ## 📢 Envío masivo por campañas
 
-Este módulo permite enviar mensajes personalizados a múltiples destinatarios, integrando:
-
-- Formulario web para crear campañas (`form_campania.html`)
-- Script para generar envíos (`generar_envios.js`)
-- Tabla `ll_envios_whatsapp` con mensajes `pendientes`
-- Bot de WhatsApp que procesa y envía los mensajes
-
-### Variables dinámicas en los mensajes:
-
-- `{{nombre}}` → nombre del lugar (extraído de `ll_lugares`)
-- `{{rubro}}` → nombre del rubro (vía `ll_rubros`)
+- Crea campañas desde el formulario web (`form_campania.html`)
+- Usa `generar_envios.js` para generar hasta 50 destinatarios
+- El bot envía mensajes personalizados con `{{nombre}}` y `{{rubro}}`
 
 ---
 
 ## ⚙️ Requisitos
 
 - Node.js v18 o superior
-- MySQL (tablas detalladas abajo)
-- Cuenta de OpenAI con API Key válida
-- Google Chrome o Chromium (para WhatsApp Web)
+- MySQL
+- API Key de OpenAI
+- Google Chrome o Chromium
 
 ---
 
@@ -81,7 +74,7 @@ cd whatsapp-ia
 npm install
 ````
 
-Crear un archivo `.env` con:
+Archivo `.env`:
 
 ```
 DB_HOST=localhost
@@ -97,11 +90,13 @@ OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxx
 
 ## 🧪 Comandos útiles
 
-| Acción                       | Comando          |
-| ---------------------------- | ---------------- |
-| Iniciar bot WhatsApp + IA    | `npm start`      |
-| Iniciar servidor web         | `npm run server` |
-| Generar 50 envíos pendientes | `npm run envios` |
+| Acción                            | Comando          |
+| --------------------------------- | ---------------- |
+| Iniciar solo el bot de WhatsApp   | `npm run bot`    |
+| Iniciar solo el servidor web      | `npm run server` |
+| Generar 50 envíos                 | `npm run envios` |
+| Iniciar bot + servidor (modo dev) | `npm run dev`    |
+| Iniciar todo desde index.js       | `npm start`      |
 
 ---
 
@@ -175,7 +170,7 @@ CREATE TABLE ll_envios_whatsapp (
 /public            -> HTML para crear campañas
 .env               -> Variables de entorno
 servidor.js        -> Servidor web Express
-index.js           -> Inicio del bot WhatsApp
+index.js           -> Entrada general del proyecto
 config.js          -> Conexión a base de datos
 ```
 
