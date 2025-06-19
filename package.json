@@ -1,7 +1,7 @@
 {
   "name": "whatsapp-ia",
   "version": "1.0.0",
-  "description": "Sistema de envío masivo de WhatsApp y campañas con Node.js",
+  "description": "Sistema de envío masivo + respuestas automáticas en WhatsApp",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
